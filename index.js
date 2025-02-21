@@ -30,6 +30,77 @@ async function run() {
     console.log(
       'Pinged your deployment. You successfully connected to MongoDB!'
     );
+    const database = client.db('tasksmanagement');
+    const taskCollection = database.collection('task');
+
+    app.get('/tasks', async (req, res) => {
+      const email = req.query.email;
+      let query = {};
+      if (email) {
+        query = { employee_email: email };
+      }
+      const result = await taskCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.post('/tasks', async (req, res) => {
+      try {
+        const addItemList = req.body;
+        const result = await taskCollection.insertOne(addItemList);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ error: 'Failed to add equipment' });
+      }
+    });
+
+    app.put('/tasks/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updatedDoc = {
+          $set: req.body,
+        };
+
+        const result = await taskCollection.updateOne(
+          filter,
+          updatedDoc,
+          options
+        );
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ error: 'Failed to update equipment' });
+      }
+    });
+
+    app.get('/tasks/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await taskCollection.findOne(query);
+        if (!result) {
+          res.status(404).send({ error: 'Equipment not found' });
+        } else {
+          res.send(result);
+        }
+      } catch (error) {
+        res.status(500).send({ error: 'Failed to fetch equipment' });
+      }
+    });
+
+    app.delete('/tasks/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await taskCollection.deleteOne(query);
+        if (result.deletedCount === 0) {
+          res.status(404).send({ error: 'tasks not found' });
+        } else {
+          res.send(result);
+        }
+      } catch (error) {
+        res.status(500).send({ error: 'Failed to delete tasks' });
+      }
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
