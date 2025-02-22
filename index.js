@@ -48,7 +48,7 @@ async function run() {
         const result = await taskCollection.insertOne(addItemList);
         res.send(result);
       } catch (error) {
-        res.status(500).send({ error: 'Failed to add equipment' });
+        res.status(500).send({ error: 'Failed to add tasks' });
       }
     });
 
@@ -68,7 +68,7 @@ async function run() {
         );
         res.send(result);
       } catch (error) {
-        res.status(500).send({ error: 'Failed to update equipment' });
+        res.status(500).send({ error: 'Failed to update tasks' });
       }
     });
 
@@ -78,12 +78,12 @@ async function run() {
         const query = { _id: new ObjectId(id) };
         const result = await taskCollection.findOne(query);
         if (!result) {
-          res.status(404).send({ error: 'Equipment not found' });
+          res.status(404).send({ error: 'tasks not found' });
         } else {
           res.send(result);
         }
       } catch (error) {
-        res.status(500).send({ error: 'Failed to fetch equipment' });
+        res.status(500).send({ error: 'Failed to fetch tasks' });
       }
     });
 
